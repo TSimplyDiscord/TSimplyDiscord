@@ -1,0 +1,74 @@
+import { type Interaction, type Client } from 'discord.js';
+
+const event: BotEvent = {
+	name: 'interactionCreate',
+	async execute(client: Client, interaction: Interaction) {
+		if (interaction.isChatInputCommand()) {
+			const command = interaction.client.commands.get(interaction.commandName);
+			const cooldown = interaction.client.cooldowns.get(
+				`${interaction.commandName}-${interaction.user.username}`,
+			);
+			if (!command) return;
+			if (command.cooldown && cooldown) {
+				if (Date.now() < cooldown) {
+					await interaction.reply(
+						`You have to wait ${Math.floor(
+							Math.abs(Date.now() - cooldown) / 1000,
+						)} second(s) to use this command again.`,
+					);
+					setTimeout(async () => interaction.deleteReply(), 5000);
+					return;
+				}
+
+				interaction.client.cooldowns.set(
+					`${interaction.commandName}-${interaction.user.username}`,
+					Date.now() + command.cooldown * 1000,
+				);
+				setTimeout(() => {
+					interaction.client.cooldowns.delete(
+						`${interaction.commandName}-${interaction.user.username}`,
+					);
+				}, command.cooldown * 1000);
+			} else if (command.cooldown && !cooldown) {
+				interaction.client.cooldowns.set(
+					`${interaction.commandName}-${interaction.user.username}`,
+					Date.now() + command.cooldown * 1000,
+				);
+			}
+
+			command.execute(interaction);
+		} else if (interaction.isAutocomplete()) {
+			const command = interaction.client.commands.get(interaction.commandName);
+			if (!command) {
+				client.logger.warn(
+					`No command matching ${interaction.commandName} was found.`,
+				);
+				return;
+			}
+
+			try {
+				if (!command.autocomplete) return;
+				command.autocomplete(interaction);
+			} catch (error) {
+				client.logger.warn(String(error));
+			}
+		} else if (interaction.isModalSubmit()) {
+			const command = interaction.client.commands.get(interaction.customId);
+			if (!command) {
+				client.logger.warn(
+					`No command matching ${interaction.customId} was found.`,
+				);
+				return;
+			}
+
+			try {
+				if (!command.modal) return;
+				command.modal(interaction);
+			} catch (error) {
+				client.logger.warn(String(error));
+			}
+		}
+	},
+};
+
+export default event;

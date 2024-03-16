@@ -39,7 +39,9 @@
 		"language": "en",
 		"words": [
 			"pino",
-			"commitlint"
+			"commitlint",
+			"cooldowns",
+			"cooldown"
 		],
 		"flagWords": [
 			"teh"

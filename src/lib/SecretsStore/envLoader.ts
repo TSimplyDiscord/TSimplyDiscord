@@ -1,7 +1,7 @@
 import process from 'node:process';
-import { type SecretsLoader, type SecretsStore } from '../SecretsStore.js';
+import { type SecretsLoader, type SecretsStore } from './SecretsStore.js';
 
-export const loader: SecretsLoader = (options) => {
+export const secretsLoader: SecretsLoader = (options) => {
 	const secrets: SecretsStore = {
 		discordAPIKey: '',
 		discordAPPID: '',
