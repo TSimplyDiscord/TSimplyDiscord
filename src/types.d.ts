@@ -20,7 +20,7 @@ declare global {
 
 	type Handler = {
 		name: string;
-		elements: Command[] | BotEvent[] | Cron[];
+		elements: Command[] | BotEvent[] | CronTab[];
 		execute: (client: Client) => void;
 	};
 
@@ -30,8 +30,11 @@ declare global {
 		execute: (...arguments) => void;
 	};
 
-	type Cron = {
+	type CronTab = {
 		name: string;
+		schedule: string;
+		timezone?: string;
+		execute: (client: Client) => void;
 	};
 }
 
